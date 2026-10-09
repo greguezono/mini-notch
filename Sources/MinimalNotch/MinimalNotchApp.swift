@@ -23,7 +23,7 @@ final class NotchPanel: NSPanel {
         NSApp.setActivationPolicy(.accessory)
         panel = NotchPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = true
-        panel.level = .statusBar; panel.hidesOnDeactivate = false
+        panel.level = .floating; panel.hidesOnDeactivate = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.escape = { [weak self] in self?.dismiss() }
         panel.acceptsMouseMovedEvents = true
@@ -31,7 +31,12 @@ final class NotchPanel: NSPanel {
         let content = NSHostingView(rootView: ControlsView(actions: actions, dismissError: { [weak self] in self?.actions.error = nil }))
         tracking.addSubview(content)
         content.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([content.leadingAnchor.constraint(equalTo: tracking.leadingAnchor), content.trailingAnchor.constraint(equalTo: tracking.trailingAnchor), content.topAnchor.constraint(equalTo: tracking.topAnchor), content.bottomAnchor.constraint(equalTo: tracking.bottomAnchor)])
+        NSLayoutConstraint.activate([
+            content.leadingAnchor.constraint(equalTo: tracking.leadingAnchor),
+            content.trailingAnchor.constraint(equalTo: tracking.trailingAnchor),
+            content.topAnchor.constraint(equalTo: tracking.topAnchor),
+            content.bottomAnchor.constraint(equalTo: tracking.bottomAnchor)
+        ])
         panel.contentView = tracking
         let mouseEvents: NSEvent.EventTypeMask = [.mouseMoved, .leftMouseDragged, .rightMouseDragged, .otherMouseDragged]
         if let monitor = NSEvent.addGlobalMonitorForEvents(matching: mouseEvents, handler: { [weak self] _ in self?.updatePointer() }) {
@@ -96,7 +101,8 @@ final class NotchPanel: NSPanel {
     private func render() {
         if state.visible {
             guard !panel.isVisible else { return }
-            panel.alphaValue = 0; panel.orderFrontRegardless()
+            // Liquid Glass renders frosted/dim in non-key windows; make the panel key so it always shows the clear look.
+            panel.alphaValue = 0; panel.makeKeyAndOrderFront(nil)
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 0 : 0.14
                 panel.animator().alphaValue = 1

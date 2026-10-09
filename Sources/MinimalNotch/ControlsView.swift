@@ -36,7 +36,7 @@ struct ControlsView: View {
                             else { Image(systemName: action == .hidden ? "doc.text.magnifyingglass" : action == .sleep ? "cup.and.saucer" : "trash").font(.system(size: 18, weight: .medium)) }
                             if active { Circle().fill(Color(red: 1, green: 0.85, blue: 0.53)).frame(width: 3, height: 3).offset(y: 21) }
                         }
-                        .glassEffect(.clear.interactive(), in: RoundedRectangle(cornerRadius: 10))
+                        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 10))
                         .foregroundStyle(action == .trash ? Color(red: 1, green: 0.45, blue: 0.43) : active ? Color(red: 1, green: 0.85, blue: 0.53) : Color(white: 0.85))
                         .frame(width: 36, height: 34)
                     }
@@ -69,5 +69,6 @@ struct ControlsView: View {
         .background(panel.fill(dim))
         .overlay(panel.strokeBorder(panelRim, lineWidth: 1))
         .colorScheme(.dark)
+        .environment(\.controlActiveState, .key)
     }
 }
