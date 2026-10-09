@@ -7,7 +7,15 @@ Requires macOS 26 or later and Xcode command-line tools.
 ## Install
 
 ```sh
-rtk bash scripts/build-app.sh && rtk open build/MiniNotch.app
+curl -fsSL https://raw.githubusercontent.com/greguezono/mini-notch/main/scripts/install.sh | sh
+```
+
+Clones, builds from source, installs to `/Applications/MiniNotch.app`, and launches it. Run the same line again to update. Set `MININOTCH_REF=<branch-or-tag>` to install something other than `main`.
+
+From a checkout:
+
+```sh
+sh scripts/install.sh
 ```
 
 ## Development
@@ -37,7 +45,7 @@ Click hidden files to request permission from the running app, enable MiniNotch 
 
 ## Signing
 
-Local builds reuse the `MiniNotch Local Signing` certificate and private key in Greg's login Keychain, pinned by fingerprint in `scripts/build-app.sh`. Keep that identity and the bundle identifier unchanged across updates, and install at `/Applications/MiniNotch.app`. The build fails if the identity is missing; it never falls back to ad-hoc signing. Export the identity securely through Keychain Access before moving to another Mac; do not commit its private key. This self-signed identity is for local use, not public distribution. Moving from the old ad-hoc build can require one final Accessibility/Automation approval.
+Local builds reuse the `MiniNotch Local Signing` certificate and private key in Greg's login Keychain, pinned by fingerprint in `scripts/build-app.sh`. Keep that identity and the bundle identifier unchanged across updates, and install at `/Applications/MiniNotch.app`. On Macs without that identity, `install.sh` builds ad-hoc (`MININOTCH_SIGN_IDENTITY=-`); ad-hoc signatures change on every rebuild, so macOS asks for Accessibility and Automation again after each update. Running `build-app.sh` directly without the identity fails unless `MININOTCH_SIGN_IDENTITY` is set. Export the identity securely through Keychain Access before moving to another Mac; do not commit its private key. This self-signed identity is for local use, not public distribution. Moving from the old ad-hoc build can require one final Accessibility/Automation approval.
 
 ## Tests
 

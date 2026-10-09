@@ -22,6 +22,8 @@ cp "$BIN" "$APP/Contents/MacOS/MiniNotch"
 cp assets/Info.plist "$APP/Contents/Info.plist"
 cp assets/MiniNotch.icns "$APP/Contents/Resources/MiniNotch.icns"
 # Keep this certificate in the login Keychain: changing it invalidates saved permissions.
-codesign --force --sign 6D27E24D6528BC12546692D5D62CC4578BBAEC95 --options runtime --entitlements assets/MiniNotch.entitlements "$APP"
+# Other Macs pass MININOTCH_SIGN_IDENTITY=- (ad-hoc); install.sh does this automatically.
+SIGN_IDENTITY="${MININOTCH_SIGN_IDENTITY:-6D27E24D6528BC12546692D5D62CC4578BBAEC95}"
+codesign --force --sign "$SIGN_IDENTITY" --options runtime --entitlements assets/MiniNotch.entitlements "$APP"
 codesign --verify --strict "$APP"
 echo "$APP"
