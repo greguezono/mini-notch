@@ -15,6 +15,31 @@ final class BehaviorTests: XCTestCase {
             }
         }
     }
+    func testGlassTintDefaultsAndTileScaling() {
+        XCTAssertTrue(GlassTint.range.contains(GlassTint.defaultValue))
+        XCTAssertEqual(GlassTint.tile(for: 0.3), 0.2, accuracy: 0.0001)
+        XCTAssertEqual(GlassTint.tile(for: 0), 0)
+    }
+    func testPinnedPanelStaysVisibleUntilUnpinned() {
+        var panel = PanelState()
+        panel.pinned = true
+        XCTAssertTrue(panel.visible)
+        panel.enter(); panel.exit(); panel.expire(); panel.escape()
+        XCTAssertTrue(panel.visible)
+        panel.pinned = false
+        XCTAssertFalse(panel.visible)
+    }
+    func testPreviewKeepsPanelVisibleWithoutChangingPin() {
+        var panel = PanelState()
+        panel.previewing = true
+        panel.enter(); panel.exit(); panel.expire(); panel.escape()
+        XCTAssertTrue(panel.visible)
+        XCTAssertFalse(panel.pinned)
+        panel.previewing = false
+        XCTAssertFalse(panel.visible)
+        panel.pinned = true; panel.previewing = true; panel.previewing = false
+        XCTAssertTrue(panel.visible)
+    }
     func testVisibility() {
         var panel = PanelState()
         panel.enter(); panel.exit(); panel.enter(); panel.expire()

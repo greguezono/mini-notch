@@ -12,9 +12,12 @@ struct PanelState {
     private var inside = false
     private var keyboard = false
     var hold = false
+    var pinned = false { didSet { if pinned { visible = true } else { keyboard = false; expire() } } }
+    var previewing = false { didSet { if previewing { visible = true } else { expire() } } }
+    private var forced: Bool { pinned || previewing }
     mutating func enter() { inside = true; visible = true }
     mutating func exit() { inside = false }
-    mutating func expire() { if !inside && !keyboard && !hold { visible = false } }
+    mutating func expire() { if !inside && !keyboard && !hold && !forced { visible = false } }
     mutating func showKeyboard() { keyboard = true; visible = true }
-    mutating func escape() { keyboard = false; visible = false }
+    mutating func escape() { keyboard = false; if !forced { visible = false } }
 }

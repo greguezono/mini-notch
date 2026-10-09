@@ -5,10 +5,14 @@ import Combine
 final class NotchPanel: NSPanel {
     var escape: (() -> Void)?
     override var canBecomeKey: Bool { true }
+    // Private AppKit hooks: Liquid Glass frosts when the window loses active appearance (app deactivates); keep it clear.
+    @objc(_hasActiveAppearance) var alwaysActiveAppearance: Bool { true }
+    @objc(_hasActiveAppearanceIgnoringKeyFocus) var alwaysActiveAppearanceIgnoringKeyFocus: Bool { true }
+    @objc(hasKeyAppearance) var alwaysKeyAppearance: Bool { true }
     override func cancelOperation(_ sender: Any?) { escape?() }
 }
 
-@MainActor final class AppDelegate: NSObject, NSApplicationDelegate {
+@MainActor final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let actions = SystemActions()
     private var state = PanelState()
     private var panel: NotchPanel!
@@ -19,6 +23,10 @@ final class NotchPanel: NSPanel {
     private var hide: DispatchWorkItem?
     private var subscriptions: Set<AnyCancellable> = []
     private var screen: NSScreen?
+    private let settings = GlassSettingsWindow()
+    private var alwaysShowItem: NSMenuItem!
+    private static let alwaysShowKey = "alwaysShowActions"
+    private var settingsItem: NSMenuItem!
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         panel = NotchPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
@@ -52,7 +60,9 @@ final class NotchPanel: NSPanel {
         icon?.accessibilityDescription = "MiniNotch"
         status.button?.image = icon
         let menu = NSMenu()
-        menu.addItem(withTitle: "Show / Hide Quick Actions", action: #selector(showHide), keyEquivalent: "")
+        alwaysShowItem = menu.addItem(withTitle: "Always Show Actions", action: #selector(toggleAlwaysShow), keyEquivalent: "")
+        settingsItem = menu.addItem(withTitle: "Settings", action: #selector(toggleSettings), keyEquivalent: ",")
+        menu.delegate = self
         menu.addItem(.separator()); menu.addItem(withTitle: "Quit MiniNotch", action: #selector(quit), keyEquivalent: "q")
         menu.items.forEach { $0.target = self }; status.menu = menu
         NotificationCenter.default.addObserver(self, selector: #selector(place), name: NSApplication.didChangeScreenParametersNotification, object: nil)
@@ -62,7 +72,13 @@ final class NotchPanel: NSPanel {
             if error != nil { state.enter(); state.exit() }
             place(); render(); scheduleHide()
         }.store(in: &subscriptions)
-        place()
+        settings.onVisibilityChange = { [weak self] open in
+            guard let self else { return }
+            state.previewing = open
+            render()
+        }
+        state.pinned = UserDefaults.standard.bool(forKey: Self.alwaysShowKey)
+        place(); render()
     }
     @objc private func place() {
         screen = NSScreen.screens.first { $0.safeAreaInsets.top > 0 }
@@ -101,7 +117,6 @@ final class NotchPanel: NSPanel {
     private func render() {
         if state.visible {
             guard !panel.isVisible else { return }
-            // Liquid Glass renders frosted/dim in non-key windows; make the panel key so it always shows the clear look.
             panel.alphaValue = 0; panel.makeKeyAndOrderFront(nil)
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 0 : 0.14
@@ -110,10 +125,16 @@ final class NotchPanel: NSPanel {
         } else { panel.orderOut(nil) }
     }
     private func dismiss() { state.escape(); render() }
-    @objc private func showHide() {
-        if state.visible { dismiss() }
-        else { state.showKeyboard(); render(); NSApp.activate(); panel.makeKey() }
+    @objc private func toggleAlwaysShow() {
+        state.pinned.toggle()
+        UserDefaults.standard.set(state.pinned, forKey: Self.alwaysShowKey)
+        render()
     }
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        alwaysShowItem.state = state.pinned ? .on : .off
+        settingsItem.state = settings.isVisible ? .on : .off
+    }
+    @objc private func toggleSettings() { settings.isVisible ? settings.close() : settings.show() }
     @objc private func quit() { NSApp.terminate(nil) }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if !actions.inFlight.isEmpty { NSSound.beep(); return .terminateCancel }
