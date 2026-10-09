@@ -6,6 +6,7 @@ struct ControlsView: View {
     @State private var hovered: SystemActions.Action?
     @FocusState private var focused: SystemActions.Action?
     @Environment(\.colorSchemeContrast) private var contrast
+    @AppStorage(GlassTint.key) private var tint = GlassTint.defaultValue
     private func label(_ action: SystemActions.Action) -> String {
         switch action {
         case .hidden: return "Toggle hidden files"
@@ -16,7 +17,6 @@ struct ControlsView: View {
     private let panel = UnevenRoundedRectangle(bottomLeadingRadius: 16, bottomTrailingRadius: 16)
     private let tileRim = LinearGradient(colors: [.white.opacity(0.35), .white.opacity(0.05)], startPoint: .top, endPoint: .bottom)
     private let panelRim = LinearGradient(colors: [.white.opacity(0.05), .white.opacity(0.25)], startPoint: .top, endPoint: .bottom)
-    private let dim = LinearGradient(colors: [.black.opacity(0.35), .clear], startPoint: .top, endPoint: .bottom)
     var body: some View {
         VStack(spacing: 10) {
             GlassEffectContainer(spacing: 8) { HStack(spacing: 8) {
@@ -36,7 +36,7 @@ struct ControlsView: View {
                             else { Image(systemName: action == .hidden ? "doc.text.magnifyingglass" : action == .sleep ? "cup.and.saucer" : "trash").font(.system(size: 18, weight: .medium)) }
                             if active { Circle().fill(Color(red: 1, green: 0.85, blue: 0.53)).frame(width: 3, height: 3).offset(y: 21) }
                         }
-                        .glassEffect(.clear, in: RoundedRectangle(cornerRadius: 10))
+                        .glassEffect(.clear.tint(.black.opacity(GlassTint.tile(for: tint))), in: RoundedRectangle(cornerRadius: 10))
                         .foregroundStyle(action == .trash ? Color(red: 1, green: 0.45, blue: 0.43) : active ? Color(red: 1, green: 0.85, blue: 0.53) : Color(white: 0.85))
                         .frame(width: 36, height: 34)
                     }
@@ -65,10 +65,9 @@ struct ControlsView: View {
         }
         .padding(.horizontal, 13).padding(.top, 8).padding(.bottom, 6)
         .frame(width: actions.error == nil ? 150 : 320, height: actions.error == nil ? 70 : 280, alignment: .top)
-        .glassEffect(.clear, in: panel)
-        .background(panel.fill(dim))
+        .glassEffect(.clear.tint(.black.opacity(tint)), in: panel)
         .overlay(panel.strokeBorder(panelRim, lineWidth: 1))
         .colorScheme(.dark)
-        .environment(\.controlActiveState, .key)
+        .environment(\.appearsActive, true)
     }
 }
