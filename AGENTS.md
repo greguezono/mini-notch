@@ -15,6 +15,7 @@ test/                     XCTest, one file per src module; injected closures (no
 assets/                   Info.plist, entitlements, MiniNotch.icns (bundle inputs)
 assets/icon-source/       icon PNG + generation prompt (not bundled)
 scripts/build-app.sh      release build + codesign -> build/MiniNotch.app
+scripts/install.sh        curl | sh entry point: clone, build, install to /Applications, launch
 scripts/check-signing.py  signing regression; run after touching build-app.sh or assets
 ```
 
@@ -40,7 +41,7 @@ Confirm the PID changed (`pgrep -l MiniNotch`) before testing behavior.
 
 ## Signing
 
-`build-app.sh` pins the `MiniNotch Local Signing` certificate by fingerprint and never falls back to ad-hoc. Keep the certificate, bundle identifier `local.greguezono.MinimalNotch` (legacy name, intentionally not renamed), and install path unchanged; changing any of them invalidates saved Accessibility/Automation permissions. The designated requirement is identifier + certificate leaf, so updates signed with the same identity retain TCC grants.
+`build-app.sh` pins the `MiniNotch Local Signing` certificate by fingerprint; it only signs with something else when `MININOTCH_SIGN_IDENTITY` is set explicitly. `install.sh` sets `-` (ad-hoc) on Macs lacking that identity. Keep the certificate, bundle identifier `local.greguezono.MinimalNotch` (legacy name, intentionally not renamed), and install path unchanged; changing any of them invalidates saved Accessibility/Automation permissions. The designated requirement is identifier + certificate leaf, so updates signed with the same identity retain TCC grants.
 
 If Accessibility shows enabled but access is denied, check `tccd` logs for "Failed to match existing code requirement", then quit the app and run `tccutil reset Accessibility local.greguezono.MinimalNotch`. The reset clears only this app's stale grant; the user must approve again.
 
