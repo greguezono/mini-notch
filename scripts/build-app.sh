@@ -2,7 +2,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 cd "$ROOT"
-for input in Package.swift Resources/Info.plist Resources/MinimalNotch.entitlements Resources/MinimalNotch.icns; do
+for input in Package.swift assets/Info.plist assets/MinimalNotch.entitlements assets/MinimalNotch.icns; do
   test -f "$input" || { echo "Missing input: $input" >&2; exit 1; }
 done
 # Refuse symlinked output components before writing any build artifacts.
@@ -18,9 +18,9 @@ for output in "$APP/Contents/MacOS/MiniNotch" "$APP/Contents/Info.plist" "$APP/C
   test ! -L "$output" || { echo "Unsafe output: $output" >&2; exit 1; }
 done
 cp "$BIN" "$APP/Contents/MacOS/MiniNotch"
-cp Resources/Info.plist "$APP/Contents/Info.plist"
-cp Resources/MinimalNotch.icns "$APP/Contents/Resources/MinimalNotch.icns"
+cp assets/Info.plist "$APP/Contents/Info.plist"
+cp assets/MinimalNotch.icns "$APP/Contents/Resources/MinimalNotch.icns"
 # Keep this certificate in the login Keychain: changing it invalidates saved permissions.
-codesign --force --sign 6D27E24D6528BC12546692D5D62CC4578BBAEC95 --options runtime --entitlements Resources/MinimalNotch.entitlements "$APP"
+codesign --force --sign 6D27E24D6528BC12546692D5D62CC4578BBAEC95 --options runtime --entitlements assets/MinimalNotch.entitlements "$APP"
 codesign --verify --strict "$APP"
 echo "$APP"

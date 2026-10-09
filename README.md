@@ -41,4 +41,4 @@ Local builds reuse the `MiniNotch Local Signing` certificate and private key in 
 
 ## Tests
 
-Tests inject Finder and Trash operations: they never send keyboard events or empty your Trash. OSLog Points of Interest records input, feedback, enqueue, and completion separately. Injected timing measures scheduling overhead only; it does not prove rendered pixels or real Finder latency. See `docs/verification.md` for actual-machine evidence and outstanding checks. Real Trash deletion requires an isolated disposable environment.
+Tests inject Finder and Trash operations: they never send keyboard events or empty your Trash. OSLog Points of Interest records input, feedback, enqueue, and completion separately. Injected timing measures scheduling overhead only; it does not prove rendered pixels or real Finder latency. Real Trash deletion requires an isolated disposable environment.

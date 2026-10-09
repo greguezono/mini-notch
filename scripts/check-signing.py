@@ -24,7 +24,7 @@ def build(root):
 source = pathlib.Path(__file__).resolve().parent.parent
 with tempfile.TemporaryDirectory(prefix="MiniNotch signing check ") as folder:
     root = pathlib.Path(folder)
-    for name in ["Package.swift", "Sources", "Tests", "Resources", "scripts"]:
+    for name in ["Package.swift", "src", "test", "assets", "scripts"]:
         item = source / name
         if item.is_dir():
             shutil.copytree(item, root / name)
@@ -32,7 +32,7 @@ with tempfile.TemporaryDirectory(prefix="MiniNotch signing check ") as folder:
             shutil.copy2(item, root / name)
     app, requirement = build(root)
     before = (app / "Contents/MacOS/MiniNotch").read_bytes()
-    plist = root / "Resources/Info.plist"
+    plist = root / "assets/Info.plist"
     info = plistlib.loads(plist.read_bytes())
     info["CFBundleVersion"] = "2"
     plist.write_bytes(plistlib.dumps(info))
@@ -49,10 +49,10 @@ with tempfile.TemporaryDirectory(prefix="MiniNotch signing check ") as folder:
     unavailable = run("bash", "scripts/build-app.sh", cwd=root)
     assert unavailable.returncode != 0 and "no identity found" in unavailable.stderr, unavailable.stderr
     script.write_text(original)
-    (root / "Resources/MinimalNotch.icns").unlink()
+    (root / "assets/MinimalNotch.icns").unlink()
     missing = run("bash", "scripts/build-app.sh", cwd=root)
     assert missing.returncode != 0 and "Missing input" in missing.stderr
-    shutil.copy2(source / "Resources/MinimalNotch.icns", root / "Resources/MinimalNotch.icns")
+    shutil.copy2(source / "assets/MinimalNotch.icns", root / "assets/MinimalNotch.icns")
     shutil.rmtree(root / "build")
     outside = root / "outside"
     outside.mkdir()
