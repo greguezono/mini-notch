@@ -1,3 +1,13 @@
 // swift-tools-version: 6.0
 import PackageDescription
-let package = Package(name: "MiniNotch", platforms: [.macOS("26.0")], products: [.executable(name: "MiniNotch", targets: ["MinimalNotch"])], targets: [.executableTarget(name: "MinimalNotch"), .testTarget(name: "MinimalNotchTests", dependencies: ["MinimalNotch"])], swiftLanguageModes: [.v5])
+
+let package = Package(
+    name: "MiniNotch",
+    platforms: [.macOS("26.0")],
+    products: [.executable(name: "MiniNotch", targets: ["MinimalNotch"])],
+    targets: [
+        .executableTarget(name: "MinimalNotch", path: "src"),
+        .testTarget(name: "MinimalNotchTests", dependencies: ["MinimalNotch"], path: "test"),
+    ],
+    swiftLanguageModes: [.v5]
+)
