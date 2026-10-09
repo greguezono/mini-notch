@@ -17,7 +17,7 @@ command -v git >/dev/null 2>&1 || fail "git not found"
 command -v swift >/dev/null 2>&1 || fail "swift not found"
 
 if [ -z "${MININOTCH_SIGN_IDENTITY:-}" ]; then
-  if security find-identity -v -p codesigning 2>/dev/null | grep -q "$LOCAL_IDENTITY"; then
+  if security find-certificate -a -Z 2>/dev/null | grep -q "$LOCAL_IDENTITY"; then
     MININOTCH_SIGN_IDENTITY="$LOCAL_IDENTITY"
   else
     MININOTCH_SIGN_IDENTITY="-"
