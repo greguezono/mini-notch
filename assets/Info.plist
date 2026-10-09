@@ -4,7 +4,7 @@
 <key>CFBundleIdentifier</key><string>local.greguezono.MinimalNotch</string>
 <key>CFBundleName</key><string>MiniNotch</string>
 <key>CFBundleExecutable</key><string>MiniNotch</string>
-<key>CFBundleIconFile</key><string>MinimalNotch</string>
+<key>CFBundleIconFile</key><string>MiniNotch</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>CFBundleShortVersionString</key><string>1.0</string>
 <key>CFBundleVersion</key><string>1</string>

@@ -55,7 +55,7 @@ final class NotchPanel: NSPanel {
             return event
         }) { mouseMonitors.append(monitor) }
         status = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        let icon = NSImage(named: "MinimalNotch")
+        let icon = NSImage(named: "MiniNotch")
         icon?.size = NSSize(width: 18, height: 18)
         icon?.accessibilityDescription = "MiniNotch"
         status.button?.image = icon
@@ -145,7 +145,7 @@ final class NotchPanel: NSPanel {
         actions.shutdown()
     }
 }
-@main struct MinimalNotchApp {
+@main struct MiniNotchApp {
     static func main() {
         let app = NSApplication.shared
         let delegate = AppDelegate(); app.delegate = delegate

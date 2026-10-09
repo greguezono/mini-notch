@@ -49,10 +49,10 @@ with tempfile.TemporaryDirectory(prefix="MiniNotch signing check ") as folder:
     unavailable = run("bash", "scripts/build-app.sh", cwd=root)
     assert unavailable.returncode != 0 and "no identity found" in unavailable.stderr, unavailable.stderr
     script.write_text(original)
-    (root / "assets/MinimalNotch.icns").unlink()
+    (root / "assets/MiniNotch.icns").unlink()
     missing = run("bash", "scripts/build-app.sh", cwd=root)
     assert missing.returncode != 0 and "Missing input" in missing.stderr
-    shutil.copy2(source / "assets/MinimalNotch.icns", root / "assets/MinimalNotch.icns")
+    shutil.copy2(source / "assets/MiniNotch.icns", root / "assets/MiniNotch.icns")
     shutil.rmtree(root / "build")
     outside = root / "outside"
     outside.mkdir()

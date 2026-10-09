@@ -68,7 +68,7 @@ final class NativeFinder {
     @Published private(set) var inFlight: Set<Action> = []
     @Published var error: Failure?
     private var assertion: IOPMAssertionID = 0
-    private let queue = DispatchQueue(label: "MinimalNotch.Finder")
+    private let queue = DispatchQueue(label: "MiniNotch.Finder")
     private let toggleHidden: () throws -> Void
     private let trash: () throws -> Void
     private let log = OSLog(subsystem: "local.greguezono.MinimalNotch", category: .pointsOfInterest)

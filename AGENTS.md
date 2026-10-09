@@ -5,14 +5,15 @@ macOS notch quick-actions app: toggle hidden files, keep awake, empty Trash. Swi
 ## Layout
 
 ```text
-src/                      executable target MinimalNotch (product MiniNotch)
-  MinimalNotchApp.swift   AppDelegate, NotchPanel, hover/hide logic
+src/                      executable target MiniNotch
+  MiniNotchApp.swift      AppDelegate, NotchPanel, hover/hide logic
   ControlsView.swift      SwiftUI buttons row + inline error area
   PanelState.swift        panel open/hold state
   GlassSettings.swift     Liquid Glass tint + Always Show Actions settings
   SystemActions.swift     SystemActions actor + NativeFinder (CGEvent/AppleScript)
-test/BehaviorTests.swift  XCTest, injected closures (no real Finder/IOKit)
-assets/                   Info.plist, entitlements, icon (.icns/.png + generation prompt)
+test/                     XCTest, one file per src module; injected closures (no real Finder/IOKit)
+assets/                   Info.plist, entitlements, MiniNotch.icns (bundle inputs)
+assets/icon-source/       icon PNG + generation prompt (not bundled)
 scripts/build-app.sh      release build + codesign -> build/MiniNotch.app
 scripts/check-signing.py  signing regression; run after touching build-app.sh or assets
 ```
@@ -39,7 +40,7 @@ Confirm the PID changed (`pgrep -l MiniNotch`) before testing behavior.
 
 ## Signing
 
-`build-app.sh` pins the `MiniNotch Local Signing` certificate by fingerprint and never falls back to ad-hoc. Keep the certificate, bundle identifier `local.greguezono.MinimalNotch`, and install path unchanged; changing any of them invalidates saved Accessibility/Automation permissions. The designated requirement is identifier + certificate leaf, so updates signed with the same identity retain TCC grants.
+`build-app.sh` pins the `MiniNotch Local Signing` certificate by fingerprint and never falls back to ad-hoc. Keep the certificate, bundle identifier `local.greguezono.MinimalNotch` (legacy name, intentionally not renamed), and install path unchanged; changing any of them invalidates saved Accessibility/Automation permissions. The designated requirement is identifier + certificate leaf, so updates signed with the same identity retain TCC grants.
 
 If Accessibility shows enabled but access is denied, check `tccd` logs for "Failed to match existing code requirement", then quit the app and run `tccutil reset Accessibility local.greguezono.MinimalNotch`. The reset clears only this app's stale grant; the user must approve again.
 
